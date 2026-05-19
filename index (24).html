@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Home Real Estate | Property Shortcut</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'Prompt', 'sans-serif'],
+                    },
+                    animation: {
+                        blob: "blob 7s infinite",
+                    },
+                    keyframes: {
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        
+        .skeleton-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04);
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+        .dark .glass-header {
+            background: rgba(15, 23, 42, 0.75);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-sale { background: rgba(220, 252, 231, 0.8); color: #166534; border: 1px solid rgba(187, 247, 208, 0.8); }
+        .status-rent { background: rgba(219, 234, 254, 0.8); color: #1e40af; border: 1px solid rgba(191, 219, 254, 0.8); }
+        .status-other { background: rgba(243, 244, 246, 0.8); color: #374151; border: 1px solid rgba(229, 231, 235, 0.8); }
+        
+        .dark .status-sale { background: rgba(6, 78, 59, 0.4); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .dark .status-rent { background: rgba(30, 58, 138, 0.4); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .dark .status-other { background: rgba(55, 65, 81, 0.4); color: #d1d5db; border: 1px solid rgba(107, 114, 128, 0.3); }
+    </style>
+</head>
+<body class="bg-[#f8fafc] dark:bg-slate-950 text-slate-800 dark:text-slate-200 pb-10 relative min-h-screen overflow-x-hidden transition-colors duration-300">
+
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none transition-opacity duration-300">
+        <div class="dark:hidden absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+        <div class="dark:hidden absolute top-[20%] right-[-10%] w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div class="dark:hidden absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+        
+        <div class="hidden dark:block absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-900 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob"></div>
+        <div class="hidden dark:block absolute top-[20%] right-[-10%] w-96 h-96 bg-emerald-900 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="hidden dark:block absolute bottom-[-20%] left-[20%] w-96 h-96 bg-fuchsia-900 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <header class="glass-header sticky top-0 z-20 shadow-sm transition-colors duration-300">
+        <div class="px-5 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-900 to-slate-700 dark:from-indigo-500 dark:to-purple-600 flex items-center justify-center text-white shadow-lg transition-colors">
+                    <i class="fa-solid fa-building text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-none">Home Real Estate</h1>
+                    <p class="text-slate-500 dark:text-slate-400 text-[11px] font-medium mt-1 tracking-wider uppercase">Property Shortcut</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 rounded-full w-10 h-10 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-700 shadow-sm text-slate-600 dark:text-slate-300">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
+                <button onclick="openSettingsModal()" class="bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 rounded-full w-10 h-10 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-700 shadow-sm text-slate-600 dark:text-slate-300">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="px-5 pb-4">
+            <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-white dark:border-slate-700 shadow-inner overflow-hidden flex items-center focus-within:bg-white/80 dark:focus-within:bg-slate-800 transition-colors focus-within:ring-2 focus-within:ring-slate-900/10 dark:focus-within:ring-white/10">
+                <div class="pl-4 text-slate-400 dark:text-slate-500">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" id="searchInput" class="w-full bg-transparent text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-3 py-3.5 outline-none text-sm font-medium" placeholder="Search locations, projects, IDs...">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="pr-4 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hidden transition-colors">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="px-5 py-2.5 bg-slate-900/5 dark:bg-white/5 border-t border-white/40 dark:border-white/5 flex justify-between items-center backdrop-blur-md">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Showing <span id="itemCount" class="font-bold text-slate-800 dark:text-white text-sm">0</span> listings</span>
+            <button onclick="fetchData(true)" class="flex items-center text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-all text-xs font-semibold shadow-sm border border-slate-200 dark:border-slate-700">
+                <i class="fa-solid fa-rotate-right mr-1.5" id="refreshIcon"></i> Refresh
+            </button>
+        </div>
+    </header>
+
+    <main class="p-4 relative" id="mainContent">
+        
+        <div id="setupWarning" class="glass-panel rounded-2xl p-4 mb-5 hidden animate-fade-in flex items-start border-l-4 border-l-amber-400">
+            <div class="bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 shadow-sm">
+                <i class="fa-solid fa-link"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 dark:text-white text-sm">API Not Configured</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Click the settings icon to connect your database.</p>
+            </div>
+        </div>
+
+        <div id="loadingState" class="space-y-4 hidden">
+            <div class="glass-panel rounded-3xl p-5 skeleton-pulse">
+                <div class="h-5 bg-slate-200/60 dark:bg-slate-700/60 rounded-md w-1/3 mb-4"></div>
+                <div class="h-4 bg-slate-200/60 dark:bg-slate-700/60 rounded-md w-full mb-2"></div>
+                <div class="h-4 bg-slate-200/60 dark:bg-slate-700/60 rounded-md w-2/3 mb-5"></div>
+                <div class="h-10 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl w-full"></div>
+            </div>
+            <div class="glass-panel rounded-3xl p-5 skeleton-pulse">
+                <div class="h-5 bg-slate-200/60 dark:bg-slate-700/60 rounded-md w-1/4 mb-4"></div>
+                <div class="h-4 bg-slate-200/60 dark:bg-slate-700/60 rounded-md w-full mb-2"></div>
+                <div class="h-4 bg-slate-200/60 dark:bg-slate-700/60 rounded-md w-1/2 mb-5"></div>
+                <div class="h-10 bg-slate-100/50 dark:bg-slate-800/50 rounded-xl w-full"></div>
+            </div>
+        </div>
+
+        <div id="listContainer" class="space-y-4"></div>
+        
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 animate-fade-in">
+            <div class="w-20 h-20 bg-white/50 dark:bg-slate-800/50 rounded-full flex items-center justify-center shadow-inner mb-4">
+                <i class="fa-solid fa-box-open text-3xl text-slate-300 dark:text-slate-600"></i>
+            </div>
+            <h3 class="font-bold text-slate-700 dark:text-slate-300 text-lg">No listings found</h3>
+            <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Try adjusting your search criteria</p>
+        </div>
+
+    </main>
+
+    <div id="detailsModal" class="fixed inset-0 z-50 hidden flex flex-col justify-end transition-opacity">
+        <div class="absolute inset-0 bg-slate-900/20 dark:bg-slate-900/60 backdrop-blur-sm transition-colors" onclick="closeModal('detailsModal')"></div>
+        
+        <div class="glass-panel bg-white/80 dark:bg-slate-900/90 rounded-t-[32px] w-full relative z-10 animate-slide-up shadow-2xl flex flex-col h-[88vh] border-t border-white dark:border-slate-700 transition-colors">
+            
+            <div class="w-full flex justify-center pt-4 pb-2 shrink-0">
+                <div class="w-12 h-1.5 bg-slate-300/80 dark:bg-slate-600/80 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 py-3 border-b border-slate-200/50 dark:border-slate-800/50 flex justify-between items-start shrink-0">
+                <div class="pr-4">
+                    <span id="detailStatus" class="inline-block px-2.5 py-1 rounded-md text-[10px] font-bold mb-1.5 status-other tracking-wider uppercase shadow-sm">STATUS</span>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white leading-tight" id="detailName">Property Name</h2>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex items-center font-medium">
+                        <i class="fa-solid fa-fingerprint mr-1.5 opacity-50"></i> <span id="detailCode">Code</span>
+                        <span class="mx-2 text-slate-300 dark:text-slate-600">|</span>
+                        <span id="detailType" class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">Type</span>
+                    </div>
+                </div>
+                <button onclick="closeModal('detailsModal')" class="bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300 shrink-0 shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto no-scrollbar flex-1 pb-28">
+                
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-indigo-900 dark:to-slate-900 p-6 rounded-3xl mb-6 relative overflow-hidden shadow-xl shadow-slate-900/10 dark:shadow-none border border-transparent dark:border-indigo-500/20">
+                    <div class="absolute -right-4 -top-4 text-white/5 dark:text-white/5 text-8xl transform rotate-12"><i class="fa-solid fa-tags"></i></div>
+                    <div class="text-[11px] text-slate-400 font-semibold mb-1 uppercase tracking-widest relative z-10">Asking Price</div>
+                    <div class="text-3xl font-bold text-white relative z-10 tracking-tight" id="detailPrice">-</div>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center"><i class="fa-solid fa-layer-group text-slate-400 dark:text-slate-500 mr-2"></i> Property Details</h3>
+                <div class="bg-white/50 dark:bg-slate-800/40 rounded-3xl p-5 border border-white dark:border-slate-700 shadow-sm mb-6 grid grid-cols-2 gap-y-5 gap-x-3 text-sm">
+                    <div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">Zone / Area</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200"><span id="detailZone">-</span> <span id="detailGrade" class="text-[10px] bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 font-bold px-1.5 py-0.5 rounded ml-1 hidden"></span></div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">Location</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200 truncate" id="detailArea">-</div>
+                    </div>
+                    
+                    <div class="col-span-2 h-px bg-slate-200/60 dark:bg-slate-700/60 my-0"></div>
+                    
+                    <div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1"><i class="fa-solid fa-bed mr-1"></i> Beds / Baths</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200"><span id="detailBed">-</span> / <span id="detailBath">-</span></div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1"><i class="fa-solid fa-ruler-combined mr-1"></i> Size</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200" id="detailSize">-</div>
+                    </div>
+
+                    <div class="col-span-2 h-px bg-slate-200/60 dark:bg-slate-700/60 my-0"></div>
+
+                    <div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">Unit / Fl / Bldg</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200" id="detailLocationSpecs">-</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">Features</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200 text-xs" id="detailOtherSpecs">-</div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center mt-2"><i class="fa-regular fa-id-badge text-slate-400 dark:text-slate-500 mr-2"></i> Owner Information</h3>
+                
+                <div class="bg-white/60 dark:bg-slate-800/40 rounded-3xl border border-white dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-slate-100/50 dark:border-slate-700/50 flex items-center bg-white/40 dark:bg-slate-800/60 backdrop-blur-sm">
+                        <div class="w-12 h-12 rounded-full bg-slate-900 dark:bg-indigo-500 text-white flex items-center justify-center font-bold text-xl mr-3 shrink-0 shadow-md">
+                            <i class="fa-regular fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Owner Name</div>
+                            <div class="font-bold text-slate-800 dark:text-white text-lg" id="detailOwnerName">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-0">
+                        <div class="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-700/30">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mr-3"><i class="fa-solid fa-phone text-emerald-500 dark:text-emerald-400 text-sm"></i></div>
+                                <span class="text-slate-700 dark:text-slate-200 font-semibold" id="detailOwnerTel">-</span>
+                            </div>
+                            <button onclick="copyText('detailOwnerTel')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide">Copy</button>
+                        </div>
+                        <div class="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-700/30">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-[#00b900]/10 dark:bg-[#00b900]/20 flex items-center justify-center mr-3"><i class="fa-brands fa-line text-[#00b900] dark:text-[#34d399] text-lg"></i></div>
+                                <span class="text-slate-700 dark:text-slate-200 font-semibold" id="detailOwnerLine">-</span>
+                            </div>
+                            <button onclick="copyText('detailOwnerLine')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide">Copy</button>
+                        </div>
+                        <div class="flex items-center p-4">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mr-3"><i class="fa-regular fa-envelope text-blue-500 dark:text-blue-400 text-sm"></i></div>
+                            <span class="text-slate-600 dark:text-slate-300 text-sm font-medium truncate" id="detailOwnerEmail">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 right-0 p-5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.3)] pb-safe rounded-b-[32px] flex gap-3">
+                <a id="actionCallBtn" href="#" class="flex-1 flex items-center justify-center py-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-black dark:hover:bg-indigo-500 transition-all shadow-lg shadow-slate-900/20 dark:shadow-indigo-900/30 text-base active:scale-[0.98]">
+                    <i class="fa-solid fa-phone-volume mr-2.5"></i> Call
+                </a>
+                <a id="actionMapBtn" href="#" target="_blank" class="flex-1 flex items-center justify-center py-4 bg-blue-600 dark:bg-blue-500 text-white rounded-2xl font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg shadow-blue-600/20 dark:shadow-blue-900/30 text-base active:scale-[0.98]">
+                    <i class="fa-solid fa-map-location-dot mr-2.5"></i> Maps
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm" onclick="closeModal('settingsModal')"></div>
+        <div class="glass-panel bg-white/90 dark:bg-slate-800/90 rounded-[32px] max-w-sm w-full p-7 relative z-10 animate-slide-up shadow-2xl border border-white dark:border-slate-700">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white"><i class="fa-solid fa-database text-slate-400 dark:text-slate-500 mr-2.5"></i>API Setup</h2>
+                <button onclick="closeModal('settingsModal')" class="text-slate-400 dark:text-slate-500 bg-slate-100/80 dark:bg-slate-700/80 rounded-full w-8 h-8 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-5 leading-relaxed font-medium">Link your Google Apps Script database to sync listings automatically.</p>
+            <div class="mb-6">
+                <label class="block text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Web App URL</label>
+                <input type="url" id="apiUrlInput" class="w-full px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-indigo-500/30 focus:border-slate-400 dark:focus:border-indigo-500 outline-none text-sm font-mono text-slate-700 dark:text-slate-300 shadow-sm transition-all" placeholder="https://script.google.com/.../exec">
+            </div>
+            <button onclick="saveSettings()" class="w-full bg-slate-900 dark:bg-indigo-600 text-white font-semibold py-3.5 rounded-2xl hover:bg-black dark:hover:bg-indigo-500 shadow-lg shadow-slate-900/20 dark:shadow-indigo-900/20 transition-all active:scale-[0.98]">
+                Save & Sync
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-900/95 dark:bg-slate-800/95 backdrop-blur-md text-white px-5 py-3.5 rounded-2xl shadow-2xl z-[70] text-sm font-semibold transition-all duration-400 opacity-0 pointer-events-none -translate-y-6 flex items-center border border-slate-700/50">
+        <div id="toastIcon" class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center mr-3 shrink-0">
+            <i class="fa-solid fa-check text-emerald-400 text-xs"></i>
+        </div>
+        <span id="toastMessage">Success</span>
+    </div>
+
+    <script>
+        const SETTINGS_KEY = 'prime_estate_settings'; 
+        let propertiesData = [];
+        let appSettings = { apiUrl: '' };
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadSettings();
+            setupSearch();
+            if (appSettings.apiUrl) fetchData();
+            else {
+                document.getElementById('setupWarning').classList.remove('hidden');
+            }
+        });
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('prime_estate_theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+                updateThemeIcon(true);
+            } else {
+                updateThemeIcon(false);
+            }
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('prime_estate_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('themeIcon');
+            if(icon) {
+                icon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-500';
+            }
+        }
+
+        function loadSettings() {
+            const settings = localStorage.getItem(SETTINGS_KEY);
+            if (settings) {
+                try {
+                    appSettings = JSON.parse(settings);
+                    document.getElementById('apiUrlInput').value = appSettings.apiUrl;
+                } catch (e) { console.error(e); }
+            }
+        }
+
+        function openSettingsModal() {
+            document.getElementById('apiUrlInput').value = appSettings.apiUrl || '';
+            const modal = document.getElementById('settingsModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function saveSettings() {
+            const newUrl = document.getElementById('apiUrlInput').value.trim();
+            if(!newUrl) return showToast('Please enter a valid URL', 'error');
+            appSettings.apiUrl = newUrl;
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings));
+            closeModal('settingsModal');
+            document.getElementById('setupWarning').classList.add('hidden');
+            fetchData(true);
+        }
+
+        async function fetchData(forceRefresh = false) {
+            if (!appSettings.apiUrl) return;
+
+            const listContainer = document.getElementById('listContainer');
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            const refreshIcon = document.getElementById('refreshIcon');
+
+            listContainer.innerHTML = '';
+            emptyState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            refreshIcon.classList.add('fa-spin');
+
+            try {
+                let targetUrl = appSettings.apiUrl.trim();
+                const urlBase = targetUrl.split('?')[0];
+                if (!urlBase.endsWith('/exec')) {
+                     throw new Error('Invalid URL format. Must end with /exec');
+                }
+
+                const response = await fetch(targetUrl, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Connection failed (Status: ${response.status})`);
+                }
+
+                const result = await response.json();
+                refreshIcon.classList.remove('fa-spin');
+
+                if (result && result.status === 'success') {
+                    propertiesData = result.data;
+                    renderList(propertiesData);
+                    if(forceRefresh) showToast('Portfolio synced successfully');
+                } else {
+                    throw new Error(result ? result.message : 'Invalid data received from server');
+                }
+
+            } catch (error) {
+                refreshIcon.classList.remove('fa-spin');
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.innerHTML = `
+                    <div class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center shadow-inner mb-4">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-400"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 dark:text-white text-lg">Connection Error</h3>
+                    <div class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs mt-3 p-3 rounded-xl border border-red-100 dark:border-red-800/30 max-w-xs text-center break-words font-medium">
+                        ${error.message}
+                    </div>
+                    <button onclick="openSettingsModal()" class="mt-5 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm px-4 py-2 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Check API Settings</button>
+                `;
+                showToast('Sync failed', 'error');
+            }
+        }
+
+        function formatNumber(num) {
+            if(!num || isNaN(num.toString().replace(/,/g, ''))) return num;
+            return Number(num.toString().replace(/,/g, '')).toLocaleString('en-US');
+        }
+
+        function buildSizeString(prop) {
+            let landParts = [];
+            if (prop.rai && prop.rai.toString().trim() !== '' && prop.rai != 0) landParts.push(`${prop.rai} ไร่`);
+            if (prop.ngan && prop.ngan.toString().trim() !== '' && prop.ngan != 0) landParts.push(`${prop.ngan} งาน`);
+            if (prop.sqw && prop.sqw.toString().trim() !== '' && prop.sqw != 0) landParts.push(`${prop.sqw} ตร.ว.`);
+            
+            let landSize = landParts.length > 0 ? landParts.join(' ') : '';
+            let sqmSize = (prop.sqm && prop.sqm.toString().trim() !== '' && prop.sqm != 0) ? `${prop.sqm} ตร.ม.` : '';
+
+            if (landSize && sqmSize) {
+                return `${landSize} (${sqmSize})`;
+            } 
+            else if (landSize) {
+                return landSize;
+            } 
+            else if (sqmSize) {
+                return sqmSize;
+            }
+            
+            return '-';
+        }
+
+        function getStatusColor(status) {
+            const s = (status || '').toLowerCase();
+            if(s.includes('sale')) return 'status-sale';
+            if(s.includes('rent')) return 'status-rent';
+            return 'status-other';
+        }
+
+        function renderList(dataArray) {
+            const container = document.getElementById('listContainer');
+            const loadingState = document.getElementById('loadingState');
+            const emptyState = document.getElementById('emptyState');
+            
+            loadingState.classList.add('hidden');
+            document.getElementById('itemCount').innerText = dataArray.length;
+
+            if (dataArray.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            let html = '';
+            
+            dataArray.forEach(prop => {
+                const displayPrice = prop.askingPrice ? `฿ ${formatNumber(prop.askingPrice)}` : 'N/A';
+                const sizeStr = buildSizeString(prop);
+                const cleanPhone = prop.ownerTel ? prop.ownerTel.toString().replace(/[^0-9+]/g, '') : '';
+                const statusColorClass = getStatusColor(prop.status);
+                
+                const ownerDisplay = prop.ownerName ? prop.ownerName : 'Unknown Owner';
+
+                let specHtml = '';
+                if(prop.bed || prop.bath) specHtml += `<span class="mr-4 flex items-center"><i class="fa-solid fa-bed text-slate-300 dark:text-slate-500 mr-1.5"></i> ${prop.bed||0} <i class="fa-solid fa-bath text-slate-300 dark:text-slate-500 ml-2 mr-1.5"></i> ${prop.bath||0}</span>`;
+                if(sizeStr !== '-') specHtml += `<span class="flex items-center"><i class="fa-solid fa-ruler-combined text-slate-300 dark:text-slate-500 mr-1.5"></i> ${sizeStr}</span>`;
+
+                html += `
+                <div class="glass-panel rounded-3xl p-5 active:scale-[0.98] transition-all cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 group" onclick="openDetailsModal(${prop.id})">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1 pr-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest ${statusColorClass} shadow-sm">${prop.status || 'OTHER'}</span>
+                                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono tracking-wider">${prop.code || ''}</span>
+                            </div>
+                            
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight line-clamp-2">
+                                <span class="text-slate-900 dark:text-white mr-1.5 border-r border-slate-300 dark:border-slate-600 pr-1.5"><i class="fa-regular fa-circle-user text-slate-400 dark:text-slate-500 mr-1"></i>${ownerDisplay}</span>
+                                <span class="text-slate-600 dark:text-slate-300 font-medium">${prop.projectName || 'Unnamed Project'}</span>
+                            </h3>
+                        </div>
+                        <div class="text-right shrink-0 bg-slate-900/5 dark:bg-white/10 px-3 py-1.5 rounded-xl border border-white dark:border-white/5">
+                            <div class="text-slate-900 dark:text-white font-bold text-lg leading-none tracking-tight">${displayPrice}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-4 mt-3 flex items-start line-clamp-1 font-medium">
+                        <i class="fa-solid fa-location-dot text-slate-300 dark:text-slate-500 mr-2 mt-0.5"></i>
+                        <span>${prop.zone || ''} ${prop.area ? '· '+prop.area : ''}</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
+                        <div class="text-xs text-slate-600 dark:text-slate-300 flex items-center font-semibold">
+                            ${specHtml || '-'}
+                        </div>
+                        <a href="tel:${cleanPhone}" onclick="event.stopPropagation();" class="${cleanPhone ? '' : 'hidden'} bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md group-hover:scale-110">
+                            <i class="fa-solid fa-phone text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+
+            searchInput.addEventListener('input', (e) => {
+                const keyword = e.target.value.trim().toLowerCase();
+                
+                if (keyword.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+
+                if (keyword === '') {
+                    renderList(propertiesData);
+                } else {
+                    const filtered = propertiesData.filter(prop => {
+                        const str = Object.values(prop).join(' ').toLowerCase();
+                        return str.includes(keyword);
+                    });
+                    renderList(filtered);
+                }
+            });
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderList(propertiesData);
+            searchInput.focus();
+        }
+
+        function openDetailsModal(id) {
+            const prop = propertiesData.find(p => p.id === id);
+            if (!prop) return;
+
+            document.getElementById('detailName').innerText = prop.projectName || '-';
+            document.getElementById('detailCode').innerText = prop.code || '-';
+            document.getElementById('detailType').innerText = prop.type || '-';
+            
+            const statusBadge = document.getElementById('detailStatus');
+            statusBadge.innerText = prop.status || 'OTHER';
+            statusBadge.className = `inline-block px-2.5 py-1 rounded-md text-[10px] font-bold mb-1.5 uppercase tracking-wider shadow-sm ${getStatusColor(prop.status)}`;
+
+            document.getElementById('detailPrice').innerText = prop.askingPrice ? `฿ ${formatNumber(prop.askingPrice)}` : 'N/A';
+            document.getElementById('detailZone').innerText = prop.zone || '-';
+            
+            if(prop.locationGrade) {
+                document.getElementById('detailGrade').innerText = 'Grade ' + prop.locationGrade;
+                document.getElementById('detailGrade').classList.remove('hidden');
+            } else {
+                document.getElementById('detailGrade').classList.add('hidden');
+            }
+
+            document.getElementById('detailArea').innerText = prop.area || '-';
+            document.getElementById('detailBed').innerText = prop.bed || '-';
+            document.getElementById('detailBath').innerText = prop.bath || '-';
+            document.getElementById('detailSize').innerText = buildSizeString(prop);
+
+            const locSpecs = [];
+            if(prop.unitNo) locSpecs.push(`Unit: ${prop.unitNo}`);
+            if(prop.floor) locSpecs.push(`Fl: ${prop.floor}`);
+            if(prop.building) locSpecs.push(`Bldg: ${prop.building}`);
+            document.getElementById('detailLocationSpecs').innerText = locSpecs.length > 0 ? locSpecs.join(' / ') : '-';
+
+            const otherSpecs = [];
+            if(prop.parking) otherSpecs.push(`Park: ${prop.parking}`);
+            if(prop.cornerUnit && prop.cornerUnit.toString().toLowerCase() === 'true') otherSpecs.push('Corner');
+            document.getElementById('detailOtherSpecs').innerText = otherSpecs.length > 0 ? otherSpecs.join(', ') : '-';
+
+            document.getElementById('detailOwnerName').innerText = prop.ownerName || '-';
+            document.getElementById('detailOwnerTel').innerText = prop.ownerTel || '-';
+            document.getElementById('detailOwnerLine').innerText = prop.ownerLine || '-';
+            document.getElementById('detailOwnerEmail').innerText = prop.ownerEmail || '-';
+            
+            const cleanPhone = prop.ownerTel ? prop.ownerTel.toString().replace(/[^0-9+]/g, '') : '';
+            const actionCallBtn = document.getElementById('actionCallBtn');
+            if (cleanPhone) {
+                actionCallBtn.href = `tel:${cleanPhone}`;
+                actionCallBtn.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                actionCallBtn.href = "#";
+                actionCallBtn.classList.add('opacity-50', 'pointer-events-none');
+            }
+
+            const actionMapBtn = document.getElementById('actionMapBtn');
+            if (prop.mapLocation && prop.mapLocation.trim() !== '') {
+                actionMapBtn.href = prop.mapLocation;
+                actionMapBtn.classList.remove('hidden');
+            } else {
+                actionMapBtn.href = "#";
+                actionMapBtn.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('detailsModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function copyText(elementId) {
+            const textToCopy = document.getElementById(elementId).innerText;
+            if (textToCopy === '-' || !textToCopy) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed";
+            textArea.style.opacity = 0;
+            document.body.appendChild(textArea);
+            
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('Copied to clipboard');
+            } catch (err) {
+                showToast('Failed to copy', 'error');
+            }
+            textArea.remove();
+        }
+
+        let toastTimeout;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const iconContainer = document.getElementById('toastIcon');
+            
+            document.getElementById('toastMessage').innerText = message;
+            
+            if(type === 'error') {
+                iconContainer.className = 'w-6 h-6 rounded-full bg-red-500/20 dark:bg-red-900/40 flex items-center justify-center mr-3 shrink-0';
+                iconContainer.innerHTML = '<i class="fa-solid fa-xmark text-red-400 text-xs"></i>';
+            } else {
+                iconContainer.className = 'w-6 h-6 rounded-full bg-emerald-500/20 dark:bg-emerald-900/40 flex items-center justify-center mr-3 shrink-0';
+                iconContainer.innerHTML = '<i class="fa-solid fa-check text-emerald-400 text-xs"></i>';
+            }
+            
+            toast.classList.remove('opacity-0', '-translate-y-6', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-6', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
