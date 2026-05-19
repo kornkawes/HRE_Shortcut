@@ -379,10 +379,13 @@
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             loadSettings();
-            initFiltersUI(); // Setup the new UI for filters
+            initFiltersUI();
             setupSearch();
-            if (appSettings.apiUrl) fetchData();
-            else {
+            if (appSettings.apiUrl) {
+                fetchData();
+                // Prefetch All List in background so modal opens instantly
+                if (appSettings.allListUrl) fetchAllListData();
+            } else {
                 document.getElementById('setupWarning').classList.remove('hidden');
             }
         });
@@ -654,79 +657,123 @@
             return 'status-blue';
         }
 
+        // ── Pagination state ──────────────────────────────
+        const PAGE_SIZE = 20;
+        let currentFilteredData = [];
+        let currentPage = 0;
+        let scrollObserver = null;
+
+        function buildCardHtml(prop) {
+            const displayPrice = prop.askingPrice ? `฿ ${formatNumber(prop.askingPrice)}` : 'N/A';
+            const sizeStr = buildSizeString(prop);
+            const cleanPhone = prop.ownerTel ? prop.ownerTel.toString().replace(/[^0-9+]/g, '') : '';
+            const statusColorClass = getStatusColor(prop.status);
+            const ownerDisplay = prop.ownerName ? prop.ownerName : 'Unknown Owner';
+            const isBookmarked = bookmarkedIds.includes(prop.id);
+            const bookmarkIconClass = isBookmarked ? 'fa-solid' : 'fa-regular';
+            const bookmarkColorClass = isBookmarked ? 'text-amber-400 dark:text-amber-400' : 'text-slate-300 dark:text-slate-600';
+            let specHtml = '';
+            if(prop.bed || prop.bath) specHtml += `<span class="mr-4 flex items-center"><i class="fa-solid fa-bed text-slate-300 dark:text-slate-500 mr-1.5"></i> ${prop.bed||0} <i class="fa-solid fa-bath text-slate-300 dark:text-slate-500 ml-2 mr-1.5"></i> ${prop.bath||0}</span>`;
+            if(sizeStr !== '-') specHtml += `<span class="flex items-center"><i class="fa-solid fa-ruler-combined text-slate-300 dark:text-slate-500 mr-1.5"></i> ${sizeStr}</span>`;
+            return `
+            <div class="glass-panel rounded-3xl p-5 active:scale-[0.98] transition-all cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 group" onclick="openDetailsModal(${prop.id})">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1 pr-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest ${statusColorClass} shadow-sm">${prop.status || 'OTHER'}</span>
+                            <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono tracking-wider">${prop.code || ''}</span>
+                            <button onclick="toggleBookmarkItem(event, ${prop.id})" class="ml-auto text-lg ${bookmarkColorClass} hover:text-amber-400 dark:hover:text-amber-400 transition-colors">
+                                <i class="${bookmarkIconClass} fa-bookmark"></i>
+                            </button>
+                        </div>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight line-clamp-2">
+                            <span class="text-slate-900 dark:text-white mr-1.5 border-r border-slate-300 dark:border-slate-600 pr-1.5"><i class="fa-regular fa-circle-user text-slate-400 dark:text-slate-500 mr-1"></i>${ownerDisplay}</span>
+                            <span class="text-slate-600 dark:text-slate-300 font-medium">${prop.projectName || 'Unnamed Project'}</span>
+                        </h3>
+                    </div>
+                    <div class="text-right shrink-0 bg-slate-900/5 dark:bg-white/10 px-3 py-1.5 rounded-xl border border-white dark:border-white/5">
+                        <div class="text-slate-900 dark:text-white font-bold text-lg leading-none tracking-tight">${displayPrice}</div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 mb-4 mt-3 flex items-start line-clamp-1 font-medium">
+                    <i class="fa-solid fa-location-dot text-slate-300 dark:text-slate-500 mr-2 mt-0.5"></i>
+                    <span>${prop.zone || ''} ${prop.area ? '· '+prop.area : ''}</span>
+                </div>
+                <div class="flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
+                    <div class="text-xs text-slate-600 dark:text-slate-300 flex items-center font-semibold">${specHtml || '-'}</div>
+                    <a href="tel:${cleanPhone}" onclick="event.stopPropagation();" class="${cleanPhone ? '' : 'hidden'} bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md group-hover:scale-110">
+                        <i class="fa-solid fa-phone text-xs"></i>
+                    </a>
+                </div>
+            </div>`;
+        }
+
+        function appendNextPage() {
+            const container = document.getElementById('listContainer');
+            const start = currentPage * PAGE_SIZE;
+            const slice = currentFilteredData.slice(start, start + PAGE_SIZE);
+            if (slice.length === 0) return;
+
+            // Remove sentinel before appending
+            const old = document.getElementById('scrollSentinel');
+            if (old) old.remove();
+
+            slice.forEach(prop => {
+                const div = document.createElement('div');
+                div.innerHTML = buildCardHtml(prop).trim();
+                container.appendChild(div.firstChild);
+            });
+            currentPage++;
+
+            const loaded = Math.min(currentPage * PAGE_SIZE, currentFilteredData.length);
+            const hasMore = loaded < currentFilteredData.length;
+
+            if (hasMore) {
+                // Add sentinel div for IntersectionObserver
+                const sentinel = document.createElement('div');
+                sentinel.id = 'scrollSentinel';
+                sentinel.className = 'h-16 flex items-center justify-center';
+                sentinel.innerHTML = `<span class="text-xs text-slate-400 dark:text-slate-600 animate-pulse">โหลดเพิ่ม...</span>`;
+                container.appendChild(sentinel);
+
+                if (!scrollObserver) {
+                    scrollObserver = new IntersectionObserver(entries => {
+                        if (entries[0].isIntersecting) appendNextPage();
+                    }, { rootMargin: '200px' });
+                }
+                scrollObserver.observe(sentinel);
+            } else {
+                // Show total count footer
+                if (currentFilteredData.length > PAGE_SIZE) {
+                    const footer = document.createElement('div');
+                    footer.className = 'text-center text-xs text-slate-400 dark:text-slate-600 py-4';
+                    footer.innerText = `แสดงทั้งหมด ${currentFilteredData.length} รายการ`;
+                    container.appendChild(footer);
+                }
+                if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
+            }
+        }
+
         function renderList(dataArray) {
             const container = document.getElementById('listContainer');
             const loadingState = document.getElementById('loadingState');
             const emptyState = document.getElementById('emptyState');
-            
+
             loadingState.classList.add('hidden');
             document.getElementById('itemCount').innerText = dataArray.length;
+
+            // Disconnect old observer & reset
+            if (scrollObserver) { scrollObserver.disconnect(); scrollObserver = null; }
+            currentFilteredData = dataArray;
+            currentPage = 0;
+            container.innerHTML = '';
 
             if (dataArray.length === 0) {
                 emptyState.classList.remove('hidden');
                 return;
             }
-
-            let html = '';
-            
-            dataArray.forEach(prop => {
-                const displayPrice = prop.askingPrice ? `฿ ${formatNumber(prop.askingPrice)}` : 'N/A';
-                const sizeStr = buildSizeString(prop);
-                const cleanPhone = prop.ownerTel ? prop.ownerTel.toString().replace(/[^0-9+]/g, '') : '';
-                const statusColorClass = getStatusColor(prop.status);
-                
-                const ownerDisplay = prop.ownerName ? prop.ownerName : 'Unknown Owner';
-
-                const isBookmarked = bookmarkedIds.includes(prop.id);
-                const bookmarkIconClass = isBookmarked ? 'fa-solid' : 'fa-regular';
-                const bookmarkColorClass = isBookmarked ? 'text-amber-400 dark:text-amber-400' : 'text-slate-300 dark:text-slate-600';
-
-                let specHtml = '';
-                if(prop.bed || prop.bath) specHtml += `<span class="mr-4 flex items-center"><i class="fa-solid fa-bed text-slate-300 dark:text-slate-500 mr-1.5"></i> ${prop.bed||0} <i class="fa-solid fa-bath text-slate-300 dark:text-slate-500 ml-2 mr-1.5"></i> ${prop.bath||0}</span>`;
-                if(sizeStr !== '-') specHtml += `<span class="flex items-center"><i class="fa-solid fa-ruler-combined text-slate-300 dark:text-slate-500 mr-1.5"></i> ${sizeStr}</span>`;
-
-                html += `
-                <div class="glass-panel rounded-3xl p-5 active:scale-[0.98] transition-all cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 group" onclick="openDetailsModal(${prop.id})">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex-1 pr-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest ${statusColorClass} shadow-sm">${prop.status || 'OTHER'}</span>
-                                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono tracking-wider">${prop.code || ''}</span>
-                                
-                                <!-- New: Bookmark Icon inline -->
-                                <button onclick="toggleBookmarkItem(event, ${prop.id})" class="ml-auto text-lg ${bookmarkColorClass} hover:text-amber-400 dark:hover:text-amber-400 transition-colors">
-                                    <i class="${bookmarkIconClass} fa-bookmark"></i>
-                                </button>
-                            </div>
-                            
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight line-clamp-2">
-                                <span class="text-slate-900 dark:text-white mr-1.5 border-r border-slate-300 dark:border-slate-600 pr-1.5"><i class="fa-regular fa-circle-user text-slate-400 dark:text-slate-500 mr-1"></i>${ownerDisplay}</span>
-                                <span class="text-slate-600 dark:text-slate-300 font-medium">${prop.projectName || 'Unnamed Project'}</span>
-                            </h3>
-                        </div>
-                        <div class="text-right shrink-0 bg-slate-900/5 dark:bg-white/10 px-3 py-1.5 rounded-xl border border-white dark:border-white/5">
-                            <div class="text-slate-900 dark:text-white font-bold text-lg leading-none tracking-tight">${displayPrice}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-4 mt-3 flex items-start line-clamp-1 font-medium">
-                        <i class="fa-solid fa-location-dot text-slate-300 dark:text-slate-500 mr-2 mt-0.5"></i>
-                        <span>${prop.zone || ''} ${prop.area ? '· '+prop.area : ''}</span>
-                    </div>
-                    
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-200/60 dark:border-slate-700/60">
-                        <div class="text-xs text-slate-600 dark:text-slate-300 flex items-center font-semibold">
-                            ${specHtml || '-'}
-                        </div>
-                        <a href="tel:${cleanPhone}" onclick="event.stopPropagation();" class="${cleanPhone ? '' : 'hidden'} bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md group-hover:scale-110">
-                            <i class="fa-solid fa-phone text-xs"></i>
-                        </a>
-                    </div>
-                </div>
-                `;
-            });
-            
-            container.innerHTML = html;
+            emptyState.classList.add('hidden');
+            appendNextPage();
         }
 
         function setupSearch() {
