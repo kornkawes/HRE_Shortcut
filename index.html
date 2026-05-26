@@ -144,42 +144,42 @@
         </div>
         
         <div class="px-5 pb-2">
-            <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-white dark:border-slate-700 shadow-inner overflow-hidden flex items-center focus-within:bg-white/80 dark:focus-within:bg-slate-800 transition-colors focus-within:ring-2 focus-within:ring-slate-900/10 dark:focus-within:ring-white/10">
-                <div class="pl-4 text-slate-400 dark:text-slate-500">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+            <div class="flex items-center gap-2">
+                <div class="relative bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-white dark:border-slate-700 shadow-inner overflow-hidden flex items-center focus-within:bg-white/80 dark:focus-within:bg-slate-800 transition-colors focus-within:ring-2 focus-within:ring-slate-900/10 dark:focus-within:ring-white/10 flex-1 min-w-0">
+                    <div class="pl-4 text-slate-400 dark:text-slate-500">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="searchInput" class="w-full bg-transparent text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-3 py-3.5 outline-none text-sm font-medium" placeholder="Search code, project, owner, phone...">
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="pr-4 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hidden transition-colors">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
                 </div>
-                <input type="text" id="searchInput" class="w-full bg-transparent text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-3 py-3.5 outline-none text-sm font-medium" placeholder="Search code, project, owner, phone...">
-                <button id="clearSearchBtn" onclick="clearSearch()" class="pr-4 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hidden transition-colors">
-                    <i class="fa-solid fa-circle-xmark"></i>
+                <button onclick="toggleAdvancedFilters()" class="relative bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-800 border border-white dark:border-slate-700 text-slate-700 dark:text-slate-200 w-12 h-12 rounded-2xl text-sm shadow-inner transition-all flex items-center justify-center shrink-0 focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-white/10" aria-label="Filter">
+                    <i class="fa-solid fa-filter"></i>
+                    <span id="advancedFilterCount" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] leading-none font-bold">0</span>
                 </button>
             </div>
         </div>
 
         <!-- NEW: Filters Section -->
         <div class="px-5 pb-3 space-y-2.5">
-            <!-- Type Filters Container -->
-            <div class="flex overflow-x-auto no-scrollbar gap-2 pb-1" id="typeFiltersContainer">
-                <!-- Javascript will inject type chips here -->
-            </div>
-            
-            <!-- Status Filters Container -->
-            <div class="flex overflow-x-auto no-scrollbar gap-2 pb-1" id="statusFiltersContainer">
-                <!-- Javascript will inject status chips here -->
-            </div>
-
-            <!-- Advanced Filter Toggle -->
-            <div class="flex items-center gap-2 pt-1">
-                <button onclick="toggleAdvancedFilters()" class="bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center">
-                    <i class="fa-solid fa-filter mr-2"></i> Filter
-                    <span id="advancedFilterCount" class="hidden ml-2 bg-white/20 text-white rounded-full px-1.5 py-0.5 text-[10px]">0</span>
-                </button>
-                <button onclick="resetAdvancedFilters()" id="resetAdvancedFilterBtn" class="hidden bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition-all">
-                    Clear Filter
-                </button>
-            </div>
-
             <!-- Advanced Filter Panel -->
             <div id="advancedFilterPanel" class="hidden bg-white/70 dark:bg-slate-800/70 border border-white dark:border-slate-700 rounded-3xl p-4 shadow-sm space-y-4 animate-fade-in">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="openFilterOptionModal('type')" class="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-3 text-left shadow-sm hover:bg-white dark:hover:bg-slate-900 transition-all">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Type</div>
+                        <div id="typeFilterBtnLabel" class="text-sm font-bold text-slate-800 dark:text-white truncate">All Types</div>
+                    </button>
+                    <button onclick="openFilterOptionModal('status')" class="bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-3 text-left shadow-sm hover:bg-white dark:hover:bg-slate-900 transition-all">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Status</div>
+                        <div id="statusFilterBtnLabel" class="text-sm font-bold text-slate-800 dark:text-white truncate">All Status</div>
+                    </button>
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="resetAdvancedFilters()" id="resetAdvancedFilterBtn" class="hidden bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition-all">
+                        Clear Filter
+                    </button>
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Zone</label>
@@ -194,8 +194,8 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Price Range</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <input id="filterPriceMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="Min ฿" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
-                        <input id="filterPriceMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="Max ฿" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                        <input id="filterPriceMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="3,000,000" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                        <input id="filterPriceMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="6,000,000" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
                     </div>
                 </div>
 
@@ -430,6 +430,19 @@
         </div>
     </div>
 
+
+    <div id="filterOptionModal" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-[65] hidden flex items-end sm:items-center justify-center p-4" onclick="closeFilterOptionModal(event)">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-white/50 dark:border-slate-700 overflow-hidden animate-fade-in" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 id="filterOptionTitle" class="font-black text-slate-800 dark:text-white">Select</h3>
+                <button onclick="closeFilterOptionModal()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="filterOptionList" class="p-3 max-h-[60vh] overflow-y-auto space-y-2"></div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-900/95 dark:bg-slate-800/95 backdrop-blur-md text-white px-5 py-3.5 rounded-2xl shadow-2xl z-[70] text-sm font-semibold transition-all duration-400 opacity-0 pointer-events-none -translate-y-6 flex items-center border border-slate-700/50">
         <div id="toastIcon" class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center mr-3 shrink-0">
             <i class="fa-solid fa-check text-emerald-400 text-xs"></i>
@@ -521,42 +534,89 @@
         }
 
         // --- NEW: Filters Logic & UI ---
-        function initFiltersUI() {
-            const typeContainer = document.getElementById('typeFiltersContainer');
-            const statusContainer = document.getElementById('statusFiltersContainer');
-            
-            // Extract dynamic unique lists from actual loaded data
-            const availableTypes = [...new Set(propertiesData.map(p => (p.type || '').toLowerCase().trim()))].filter(Boolean).sort();
-            const availableStatuses = [...new Set(propertiesData.map(p => (p.status || '').toLowerCase().trim()))].filter(Boolean).sort();
-            
-            // Generate Type Chips
-            let typeHtml = `<button onclick="setTypeFilter('')" class="${!activeType ? 'bg-slate-900 text-white dark:bg-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'} px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors shadow-sm">All Types</button>`;
-            availableTypes.forEach(t => {
-                const isActive = activeType === t;
-                const activeClass = isActive ? 'bg-slate-900 text-white dark:bg-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
-                typeHtml += `<button onclick="setTypeFilter('${t}')" class="${activeClass} px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap capitalize transition-colors shadow-sm">${t}</button>`;
-            });
-            typeContainer.innerHTML = typeHtml;
+        function escapeHtml(value) {
+            return (value || '').toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-            // Generate Status Chips
-            let statusHtml = `<button onclick="setStatusFilter('')" class="${!activeStatus ? 'bg-slate-900 text-white dark:bg-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'} px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors shadow-sm">All Status</button>`;
-            availableStatuses.forEach(s => {
-                const isActive = activeStatus === s;
-                const activeClass = isActive ? 'bg-slate-900 text-white dark:bg-indigo-500' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
-                statusHtml += `<button onclick="setStatusFilter('${s}')" class="${activeClass} px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap capitalize transition-colors shadow-sm">${s}</button>`;
+        function labelForFilter(value, fallback) {
+            return value ? value : fallback;
+        }
+
+        // --- NEW: Filters Logic & UI ---
+        function initFiltersUI() {
+            const typeLabel = document.getElementById('typeFilterBtnLabel');
+            const statusLabel = document.getElementById('statusFilterBtnLabel');
+            if (typeLabel) typeLabel.textContent = labelForFilter(activeType, 'All Types');
+            if (statusLabel) statusLabel.textContent = labelForFilter(activeStatus, 'All Status');
+            updateAdvancedFilterBadge();
+        }
+
+        function openFilterOptionModal(kind) {
+            const modal = document.getElementById('filterOptionModal');
+            const title = document.getElementById('filterOptionTitle');
+            const list = document.getElementById('filterOptionList');
+            if (!modal || !title || !list) return;
+
+            const isType = kind === 'type';
+            const currentValue = isType ? activeType : activeStatus;
+            const fallbackLabel = isType ? 'All Types' : 'All Status';
+            const options = [...new Set(propertiesData.map(p => ((isType ? p.type : p.status) || '').toLowerCase().trim()))].filter(Boolean).sort();
+
+            title.textContent = isType ? 'Select Type' : 'Select Status';
+
+            const allActive = !currentValue;
+            let html = `
+                <button onclick='selectOptionFilter("${kind}", "")' class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-left transition-all ${allActive ? 'bg-slate-900 text-white dark:bg-indigo-600' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+                    <span class="font-bold text-sm">${fallbackLabel}</span>
+                    ${allActive ? '<i class="fa-solid fa-check"></i>' : ''}
+                </button>
+            `;
+
+            options.forEach(option => {
+                const isActive = currentValue === option;
+                html += `
+                    <button onclick='selectOptionFilter("${kind}", ${JSON.stringify(option)})' class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-left transition-all ${isActive ? 'bg-slate-900 text-white dark:bg-indigo-600' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+                        <span class="font-bold text-sm capitalize">${escapeHtml(option)}</span>
+                        ${isActive ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </button>
+                `;
             });
-            statusContainer.innerHTML = statusHtml;
+
+            list.innerHTML = html;
+            modal.classList.remove('hidden');
+        }
+
+        function closeFilterOptionModal(event) {
+            if (event && event.target && event.target.id !== 'filterOptionModal') return;
+            const modal = document.getElementById('filterOptionModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function selectOptionFilter(kind, value) {
+            if (kind === 'type') {
+                activeType = (value || '').toLowerCase();
+            } else {
+                activeStatus = (value || '').toLowerCase();
+            }
+            initFiltersUI();
+            closeFilterOptionModal();
+            applyFilters();
         }
 
         function setTypeFilter(type) {
-            activeType = type.toLowerCase();
-            initFiltersUI(); // Re-render chips for active state
+            activeType = (type || '').toLowerCase();
+            initFiltersUI();
             applyFilters();
         }
 
         function setStatusFilter(status) {
-            activeStatus = status.toLowerCase();
-            initFiltersUI(); // Re-render chips for active state
+            activeStatus = (status || '').toLowerCase();
+            initFiltersUI();
             applyFilters();
         }
 
@@ -606,9 +666,21 @@
         }
 
         // Advanced Filter Helpers
+        function formatPriceFilterInput(input) {
+            const raw = input.value.replace(/[^0-9]/g, '');
+            if (!raw) {
+                input.value = '';
+                return;
+            }
+            input.value = Number(raw).toLocaleString('en-US');
+        }
+
         function setupAdvancedFilters() {
             document.querySelectorAll('[data-filter="advanced"]').forEach(input => {
                 input.addEventListener('input', () => {
+                    if (input.id === 'filterPriceMin' || input.id === 'filterPriceMax') {
+                        formatPriceFilterInput(input);
+                    }
                     updateAdvancedFilterBadge();
                     applyFilters();
                 });
@@ -624,7 +696,9 @@
 
         function resetAdvancedFilters() {
             document.querySelectorAll('[data-filter="advanced"]').forEach(input => input.value = '');
-            updateAdvancedFilterBadge();
+            activeType = '';
+            activeStatus = '';
+            initFiltersUI();
             applyFilters();
         }
 
@@ -658,6 +732,9 @@
         }
 
         function countActiveAdvancedFilters() {
+            let baseCount = 0;
+            if (activeType) baseCount += 1;
+            if (activeStatus) baseCount += 1;
             const groups = [
                 ['filterZone'],
                 ['filterArea'],
@@ -668,7 +745,7 @@
                 ['filterSqmMin', 'filterSqmMax'],
                 ['filterDetails']
             ];
-            return groups.filter(group => group.some(id => getInputValue(id) !== '')).length;
+            return baseCount + groups.filter(group => group.some(id => getInputValue(id) !== '')).length;
         }
 
         function updateAdvancedFilterBadge() {
