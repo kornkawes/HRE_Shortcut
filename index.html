@@ -365,14 +365,7 @@
                 </div>
 
 
-                <!-- All List: Source Links & Remarks -->
-                <div id="allListSection" class="hidden mb-6">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center mt-2">
-                        <i class="fa-solid fa-list-check text-slate-400 dark:text-slate-500 mr-2"></i> Source Listings
-                        <span id="allListCount" class="ml-2 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full"></span>
-                    </h3>
-                    <div id="allListContainer" class="space-y-2.5"></div>
-                </div>
+
 
                 <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center mt-2"><i class="fa-regular fa-id-badge text-slate-400 dark:text-slate-500 mr-2"></i> Owner Information</h3>
                 
@@ -395,18 +388,27 @@
                             </div>
                             <button onclick="copyText('detailOwnerTel')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide">Copy</button>
                         </div>
-                        <div class="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-700/30">
+                        <div id="detailOwnerLineRow" class="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-700/30">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 rounded-full bg-[#00b900]/10 dark:bg-[#00b900]/20 flex items-center justify-center mr-3"><i class="fa-brands fa-line text-[#00b900] dark:text-[#34d399] text-lg"></i></div>
                                 <span class="text-slate-700 dark:text-slate-200 font-semibold" id="detailOwnerLine">-</span>
                             </div>
                             <button onclick="copyText('detailOwnerLine')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide">Copy</button>
                         </div>
-                        <div class="flex items-center p-4">
+                        <div id="detailOwnerEmailRow" class="flex items-center p-4">
                             <div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mr-3"><i class="fa-regular fa-envelope text-blue-500 dark:text-blue-400 text-sm"></i></div>
                             <span class="text-slate-600 dark:text-slate-300 text-sm font-medium truncate" id="detailOwnerEmail">-</span>
                         </div>
                     </div>
+                </div>
+
+                <!-- All List: Source Links & Remarks -->
+                <div id="allListSection" class="hidden mb-6">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center mt-2">
+                        <i class="fa-solid fa-list-check text-slate-400 dark:text-slate-500 mr-2"></i> Source Listings
+                        <span id="allListCount" class="ml-2 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full"></span>
+                    </h3>
+                    <div id="allListContainer" class="space-y-2.5"></div>
                 </div>
             </div>
 
@@ -1401,8 +1403,27 @@
 
             document.getElementById('detailOwnerName').innerText = prop.ownerName || '-';
             document.getElementById('detailOwnerTel').innerText = prop.ownerTel || '-';
-            document.getElementById('detailOwnerLine').innerText = prop.ownerLine || '-';
-            document.getElementById('detailOwnerEmail').innerText = prop.ownerEmail || '-';
+
+            const ownerLine = (prop.ownerLine || '').toString().trim();
+            const ownerEmail = (prop.ownerEmail || '').toString().trim();
+            const ownerLineRow = document.getElementById('detailOwnerLineRow');
+            const ownerEmailRow = document.getElementById('detailOwnerEmailRow');
+
+            if (ownerLine) {
+                document.getElementById('detailOwnerLine').innerText = ownerLine;
+                ownerLineRow.classList.remove('hidden');
+            } else {
+                document.getElementById('detailOwnerLine').innerText = '-';
+                ownerLineRow.classList.add('hidden');
+            }
+
+            if (ownerEmail) {
+                document.getElementById('detailOwnerEmail').innerText = ownerEmail;
+                ownerEmailRow.classList.remove('hidden');
+            } else {
+                document.getElementById('detailOwnerEmail').innerText = '-';
+                ownerEmailRow.classList.add('hidden');
+            }
             
             const cleanPhone = prop.ownerTel ? prop.ownerTel.toString().replace(/[^0-9+]/g, '') : '';
             const actionCallBtn = document.getElementById('actionCallBtn');
