@@ -194,8 +194,8 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Price Range</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <input id="filterPriceMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="Min x,xxx,xxx" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
-                        <input id="filterPriceMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="Max x,xxx,xxx" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                        <input id="filterPriceMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="Min" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                        <input id="filterPriceMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="Max" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
                     </div>
                 </div>
 
@@ -351,6 +351,19 @@
                         <div class="font-medium text-slate-800 dark:text-slate-200 text-sm whitespace-pre-line" id="detailRemark">-</div>
                     </div>
                 </div>
+
+                <!-- Similar Properties: based on specs and location buckets -->
+                <div id="similarSection" class="hidden mb-6">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center mt-2">
+                        <i class="fa-solid fa-house-chimney-window text-slate-400 dark:text-slate-500 mr-2"></i> Similar Properties
+                        <span id="similarCount" class="ml-2 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full"></span>
+                    </h3>
+                    <div class="text-[11px] text-slate-400 dark:text-slate-500 mb-3 leading-relaxed">
+                        แนะนำจากทรัพย์ที่ type, zone/area, ราคา, ห้องนอน/ห้องน้ำ และขนาดใกล้เคียงกัน
+                    </div>
+                    <div id="similarContainer" class="space-y-2.5"></div>
+                </div>
+
 
                 <!-- All List: Source Links & Remarks -->
                 <div id="allListSection" class="hidden mb-6">
@@ -1165,13 +1178,168 @@
             }).join('');
         }
 
+
+        function textTokens(value) {
+            return (value || '').toString().toLowerCase().split(/[^a-z0-9ก-๙]+/).filter(t => t.length >= 2);
+        }
+
+        function textSimilarity(a, b) {
+            const aText = (a || '').toString().toLowerCase().trim();
+            const bText = (b || '').toString().toLowerCase().trim();
+            if (!aText || !bText) return 0;
+            if (aText === bText) return 1;
+            if (aText.includes(bText) || bText.includes(aText)) return 0.75;
+            const aTokens = textTokens(aText);
+            const bTokens = textTokens(bText);
+            if (!aTokens.length || !bTokens.length) return 0;
+            const bSet = new Set(bTokens);
+            const hit = aTokens.filter(t => bSet.has(t)).length;
+            return hit / Math.max(aTokens.length, bTokens.length);
+        }
+
+        function rangeScore(current, candidate, tolerance, fullScore, partialTolerance) {
+            const a = parseNumber(current);
+            const b = parseNumber(candidate);
+            if (a === null || b === null) return { score: 0, label: '' };
+            const diff = Math.abs(a - b);
+            if (diff <= tolerance) return { score: fullScore, label: diff === 0 ? 'same' : `±${diff}` };
+            if (partialTolerance && diff <= partialTolerance) return { score: Math.round(fullScore * 0.6), label: `±${diff}` };
+            return { score: 0, label: '' };
+        }
+
+        function percentRangeScore(current, candidate, fullPct, fullScore, partialPct) {
+            const a = parseNumber(current);
+            const b = parseNumber(candidate);
+            if (a === null || b === null || a === 0) return { score: 0, label: '' };
+            const pct = Math.abs(a - b) / a;
+            if (pct <= fullPct) return { score: fullScore, label: `±${Math.round(pct * 100)}%` };
+            if (partialPct && pct <= partialPct) return { score: Math.round(fullScore * 0.6), label: `±${Math.round(pct * 100)}%` };
+            return { score: 0, label: '' };
+        }
+
+        function calculateSimilarScore(base, item) {
+            let score = 0;
+            const reasons = [];
+
+            const typeA = (base.type || '').toString().toLowerCase().trim();
+            const typeB = (item.type || '').toString().toLowerCase().trim();
+            if (typeA && typeB && typeA === typeB) {
+                score += 18;
+                reasons.push('type');
+            }
+
+            const zoneSim = textSimilarity(base.zone, item.zone);
+            if (zoneSim >= 0.75) {
+                score += 24;
+                reasons.push('zone');
+            } else if (zoneSim > 0) {
+                score += Math.round(12 * zoneSim);
+            }
+
+            const areaSim = textSimilarity(base.area, item.area);
+            if (areaSim >= 0.75) {
+                score += 18;
+                reasons.push('area');
+            } else if (areaSim > 0) {
+                score += Math.round(10 * areaSim);
+            }
+
+            const bed = rangeScore(base.bed, item.bed, 0, 12, 1);
+            if (bed.score) {
+                score += bed.score;
+                reasons.push(bed.label === 'same' ? 'same bed' : 'bed ' + bed.label);
+            }
+
+            const bath = rangeScore(base.bath, item.bath, 0, 12, 1);
+            if (bath.score) {
+                score += bath.score;
+                reasons.push(bath.label === 'same' ? 'same bath' : 'bath ' + bath.label);
+            }
+
+            const price = percentRangeScore(base.askingPrice, item.askingPrice, 0.12, 14, 0.25);
+            if (price.score) {
+                score += price.score;
+                reasons.push('price ' + price.label);
+            }
+
+            const sqw = percentRangeScore(base.sqw, item.sqw, 0.15, 10, 0.30);
+            if (sqw.score) {
+                score += sqw.score;
+                reasons.push('land ' + sqw.label);
+            }
+
+            const sqm = percentRangeScore(base.sqm, item.sqm, 0.15, 10, 0.30);
+            if (sqm.score) {
+                score += sqm.score;
+                reasons.push('usable ' + sqm.label);
+            }
+
+            return { score, reasons: reasons.slice(0, 4) };
+        }
+
+        function renderSimilarProperties(prop) {
+            const section = document.getElementById('similarSection');
+            const container = document.getElementById('similarContainer');
+            const countEl = document.getElementById('similarCount');
+            if (!section || !container) return;
+
+            const similar = propertiesData
+                .filter(item => item.id !== prop.id)
+                .map(item => ({ item, ...calculateSimilarScore(prop, item) }))
+                .filter(row => row.score >= 25)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            if (!similar.length) {
+                section.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            section.classList.remove('hidden');
+            if (countEl) countEl.innerText = `${similar.length} match${similar.length > 1 ? 'es' : ''}`;
+
+            container.innerHTML = similar.map(({ item, score, reasons }) => {
+                const price = item.askingPrice ? `฿ ${formatNumber(item.askingPrice)}` : 'N/A';
+                const specs = [
+                    item.bed ? `${item.bed} bed` : '',
+                    item.bath ? `${item.bath} bath` : '',
+                    buildSizeString(item) !== '-' ? buildSizeString(item) : ''
+                ].filter(Boolean).join(' · ');
+                const reasonChips = reasons.map(reason => `<span class="bg-white/70 dark:bg-slate-700/70 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-full px-2 py-0.5">${escapeHtml(reason)}</span>`).join('');
+                return `
+                    <button onclick="openDetailsModal(${item.id})" class="w-full text-left bg-white/60 dark:bg-slate-800/40 rounded-2xl border border-white dark:border-slate-700 shadow-sm p-4 active:scale-[0.99] transition-all hover:bg-white/80 dark:hover:bg-slate-800/70">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span class="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full">${Math.min(score, 100)}% similar</span>
+                                    <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500">${escapeHtml(item.code || '')}</span>
+                                </div>
+                                <div class="font-bold text-slate-800 dark:text-white text-sm line-clamp-1">${escapeHtml(item.projectName || 'Unnamed Project')}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-1">${escapeHtml([item.zone, item.area].filter(Boolean).join(' · '))}</div>
+                                ${specs ? `<div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">${escapeHtml(specs)}</div>` : ''}
+                                ${reasonChips ? `<div class="flex flex-wrap gap-1.5 mt-2 text-[10px]">${reasonChips}</div>` : ''}
+                            </div>
+                            <div class="shrink-0 text-right font-black text-slate-900 dark:text-white text-sm">${price}</div>
+                        </div>
+                    </button>`;
+            }).join('');
+        }
+
         function openDetailsModal(id) {
             const prop = propertiesData.find(p => p.id === id);
             if (!prop) return;
 
+            const similarSection = document.getElementById('similarSection');
+            const similarContainer = document.getElementById('similarContainer');
+            if (similarSection) similarSection.classList.add('hidden');
+            if (similarContainer) similarContainer.innerHTML = '';
+
             // Reset All List section while loading
             document.getElementById('allListSection').classList.add('hidden');
             document.getElementById('allListContainer').innerHTML = '';
+
+            renderSimilarProperties(prop);
 
             // Fetch and render All List entries matching this property's code
             if (appSettings.allListUrl && prop.code) {
