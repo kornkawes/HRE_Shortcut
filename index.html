@@ -369,38 +369,20 @@
 
                 <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center mt-2"><i class="fa-regular fa-id-badge text-slate-400 dark:text-slate-500 mr-2"></i> Owner Information</h3>
                 
-                <div class="bg-white/60 dark:bg-slate-800/40 rounded-3xl border border-white dark:border-slate-700 shadow-sm overflow-hidden">
-                    <div class="p-4 border-b border-slate-100/50 dark:border-slate-700/50 flex items-center bg-white/40 dark:bg-slate-800/60 backdrop-blur-sm">
-                        <div class="w-12 h-12 rounded-full bg-slate-900 dark:bg-indigo-500 text-white flex items-center justify-center font-bold text-xl mr-3 shrink-0 shadow-md">
-                            <i class="fa-regular fa-user"></i>
-                        </div>
-                        <div>
-                            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Owner Name</div>
-                            <div class="font-bold text-slate-800 dark:text-white text-lg" id="detailOwnerName">-</div>
-                        </div>
-                    </div>
-                    
-                    <div class="p-0">
-                        <div class="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-700/30">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mr-3"><i class="fa-solid fa-phone text-emerald-500 dark:text-emerald-400 text-sm"></i></div>
-                                <span class="text-slate-700 dark:text-slate-200 font-semibold" id="detailOwnerTel">-</span>
+                <div class="bg-white/60 dark:bg-slate-800/40 rounded-3xl border border-white dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center min-w-0">
+                            <div class="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mr-3 shrink-0"><i class="fa-solid fa-phone text-emerald-500 dark:text-emerald-400 text-sm"></i></div>
+                            <div class="min-w-0">
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-0.5">Phone</div>
+                                <span class="text-slate-700 dark:text-slate-200 font-semibold truncate block" id="detailOwnerTel">-</span>
                             </div>
-                            <button onclick="copyText('detailOwnerTel')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide">Copy</button>
                         </div>
-                        <div id="detailOwnerLineRow" class="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-700/30">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-[#00b900]/10 dark:bg-[#00b900]/20 flex items-center justify-center mr-3"><i class="fa-brands fa-line text-[#00b900] dark:text-[#34d399] text-lg"></i></div>
-                                <span class="text-slate-700 dark:text-slate-200 font-semibold" id="detailOwnerLine">-</span>
-                            </div>
-                            <button onclick="copyText('detailOwnerLine')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide">Copy</button>
-                        </div>
-                        <div id="detailOwnerEmailRow" class="flex items-center p-4">
-                            <div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mr-3"><i class="fa-regular fa-envelope text-blue-500 dark:text-blue-400 text-sm"></i></div>
-                            <span class="text-slate-600 dark:text-slate-300 text-sm font-medium truncate" id="detailOwnerEmail">-</span>
-                        </div>
+                        <button onclick="copyText('detailOwnerTel')" class="text-slate-500 dark:text-slate-300 text-[11px] font-bold bg-white dark:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm transition-all uppercase tracking-wide shrink-0">Copy</button>
                     </div>
                 </div>
+
+
 
                 <!-- All List: Source Links & Remarks -->
                 <div id="allListSection" class="hidden mb-6">
@@ -1279,6 +1261,29 @@
             return { score, reasons: reasons.slice(0, 4) };
         }
 
+        function getCompareClass(baseValue, itemValue, mode = 'higherBetter') {
+            const base = parseNumber(baseValue);
+            const item = parseNumber(itemValue);
+            if (base === null || item === null) return 'text-slate-400 dark:text-slate-500';
+            if (item === base) return 'text-slate-500 dark:text-slate-400';
+            const isBetter = mode === 'lowerBetter' ? item < base : item > base;
+            return isBetter ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-rose-600 dark:text-rose-400 font-bold';
+        }
+
+        function getCompareArrow(baseValue, itemValue) {
+            const base = parseNumber(baseValue);
+            const item = parseNumber(itemValue);
+            if (base === null || item === null || item === base) return '';
+            return item > base ? '↑' : '↓';
+        }
+
+        function compareMetric(label, baseValue, itemValue, suffix = '', mode = 'higherBetter') {
+            if (!itemValue || itemValue.toString().trim() === '') return '';
+            const cls = getCompareClass(baseValue, itemValue, mode);
+            const arrow = getCompareArrow(baseValue, itemValue);
+            return `<span class="${cls}">${label}: ${escapeHtml(itemValue)}${suffix} ${arrow}</span>`;
+        }
+
         function renderSimilarProperties(prop) {
             const section = document.getElementById('similarSection');
             const container = document.getElementById('similarContainer');
@@ -1303,11 +1308,15 @@
 
             container.innerHTML = similar.map(({ item, score, reasons }) => {
                 const price = item.askingPrice ? `฿ ${formatNumber(item.askingPrice)}` : 'N/A';
-                const specs = [
-                    item.bed ? `${item.bed} bed` : '',
-                    item.bath ? `${item.bath} bath` : '',
-                    buildSizeString(item) !== '-' ? buildSizeString(item) : ''
-                ].filter(Boolean).join(' · ');
+                const priceClass = getCompareClass(prop.askingPrice, item.askingPrice, 'lowerBetter');
+                const priceArrow = getCompareArrow(prop.askingPrice, item.askingPrice);
+                const sizeString = buildSizeString(item);
+                const metricHtml = [
+                    compareMetric('Bed', prop.bed, item.bed),
+                    compareMetric('Bath', prop.bath, item.bath),
+                    compareMetric('Land', prop.sqw, item.sqw, ' ตร.ว.'),
+                    compareMetric('Use', prop.sqm, item.sqm, ' ตร.ม.')
+                ].filter(Boolean).join('<span class="text-slate-300 dark:text-slate-600">·</span>');
                 const reasonChips = reasons.map(reason => `<span class="bg-white/70 dark:bg-slate-700/70 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-600 rounded-full px-2 py-0.5">${escapeHtml(reason)}</span>`).join('');
                 return `
                     <button onclick="openDetailsModal(${item.id})" class="w-full text-left bg-white/60 dark:bg-slate-800/40 rounded-2xl border border-white dark:border-slate-700 shadow-sm p-4 active:scale-[0.99] transition-all hover:bg-white/80 dark:hover:bg-slate-800/70">
@@ -1319,10 +1328,10 @@
                                 </div>
                                 <div class="font-bold text-slate-800 dark:text-white text-sm line-clamp-1">${escapeHtml(item.projectName || 'Unnamed Project')}</div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-1">${escapeHtml([item.zone, item.area].filter(Boolean).join(' · '))}</div>
-                                ${specs ? `<div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">${escapeHtml(specs)}</div>` : ''}
+                                ${metricHtml ? `<div class="flex flex-wrap gap-x-1.5 gap-y-1 text-[11px] mt-2">${metricHtml}</div>` : (sizeString !== '-' ? `<div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">${escapeHtml(sizeString)}</div>` : '')}
                                 ${reasonChips ? `<div class="flex flex-wrap gap-1.5 mt-2 text-[10px]">${reasonChips}</div>` : ''}
                             </div>
-                            <div class="shrink-0 text-right font-black text-slate-900 dark:text-white text-sm">${price}</div>
+                            <div class="shrink-0 text-right font-black text-sm ${priceClass}">${price} ${priceArrow}</div>
                         </div>
                     </button>`;
             }).join('');
@@ -1356,7 +1365,8 @@
                 });
             }
 
-            document.getElementById('detailName').innerText = prop.projectName || '-';
+            const ownerDisplayName = prop.ownerName ? prop.ownerName : 'Unknown Owner';
+            document.getElementById('detailName').innerHTML = `<span class="text-slate-900 dark:text-white mr-1.5 border-r border-slate-300 dark:border-slate-600 pr-1.5"><i class="fa-regular fa-circle-user text-slate-400 dark:text-slate-500 mr-1"></i>${escapeHtml(ownerDisplayName)}</span><span class="text-slate-600 dark:text-slate-300 font-medium">${escapeHtml(prop.projectName || '-')}</span>`;
             document.getElementById('detailCode').innerText = prop.code || '-';
             document.getElementById('detailType').innerText = prop.type || '-';
             
@@ -1401,29 +1411,7 @@
             if(prop.cornerUnit && prop.cornerUnit.toString().toLowerCase() === 'true') otherSpecs.push('Corner');
             document.getElementById('detailOtherSpecs').innerText = otherSpecs.length > 0 ? otherSpecs.join(', ') : '-';
 
-            document.getElementById('detailOwnerName').innerText = prop.ownerName || '-';
             document.getElementById('detailOwnerTel').innerText = prop.ownerTel || '-';
-
-            const ownerLine = (prop.ownerLine || '').toString().trim();
-            const ownerEmail = (prop.ownerEmail || '').toString().trim();
-            const ownerLineRow = document.getElementById('detailOwnerLineRow');
-            const ownerEmailRow = document.getElementById('detailOwnerEmailRow');
-
-            if (ownerLine) {
-                document.getElementById('detailOwnerLine').innerText = ownerLine;
-                ownerLineRow.classList.remove('hidden');
-            } else {
-                document.getElementById('detailOwnerLine').innerText = '-';
-                ownerLineRow.classList.add('hidden');
-            }
-
-            if (ownerEmail) {
-                document.getElementById('detailOwnerEmail').innerText = ownerEmail;
-                ownerEmailRow.classList.remove('hidden');
-            } else {
-                document.getElementById('detailOwnerEmail').innerText = '-';
-                ownerEmailRow.classList.add('hidden');
-            }
             
             const cleanPhone = prop.ownerTel ? prop.ownerTel.toString().replace(/[^0-9+]/g, '') : '';
             const actionCallBtn = document.getElementById('actionCallBtn');
