@@ -148,7 +148,7 @@
                 <div class="pl-4 text-slate-400 dark:text-slate-500">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
-                <input type="text" id="searchInput" class="w-full bg-transparent text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-3 py-3.5 outline-none text-sm font-medium" placeholder="Search locations, projects, IDs...">
+                <input type="text" id="searchInput" class="w-full bg-transparent text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-3 py-3.5 outline-none text-sm font-medium" placeholder="Search code, project, owner, phone...">
                 <button id="clearSearchBtn" onclick="clearSearch()" class="pr-4 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hidden transition-colors">
                     <i class="fa-solid fa-circle-xmark"></i>
                 </button>
@@ -165,6 +165,71 @@
             <!-- Status Filters Container -->
             <div class="flex overflow-x-auto no-scrollbar gap-2 pb-1" id="statusFiltersContainer">
                 <!-- Javascript will inject status chips here -->
+            </div>
+
+            <!-- Advanced Filter Toggle -->
+            <div class="flex items-center gap-2 pt-1">
+                <button onclick="toggleAdvancedFilters()" class="bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center">
+                    <i class="fa-solid fa-filter mr-2"></i> Filter
+                    <span id="advancedFilterCount" class="hidden ml-2 bg-white/20 text-white rounded-full px-1.5 py-0.5 text-[10px]">0</span>
+                </button>
+                <button onclick="resetAdvancedFilters()" id="resetAdvancedFilterBtn" class="hidden bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition-all">
+                    Clear Filter
+                </button>
+            </div>
+
+            <!-- Advanced Filter Panel -->
+            <div id="advancedFilterPanel" class="hidden bg-white/70 dark:bg-slate-800/70 border border-white dark:border-slate-700 rounded-3xl p-4 shadow-sm space-y-4 animate-fade-in">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Zone</label>
+                        <input id="filterZone" data-filter="advanced" type="text" placeholder="บางใหญ่, ติวานนท์..." class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Area / Location</label>
+                        <input id="filterArea" data-filter="advanced" type="text" placeholder="ซอย, ถนน, grade" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Price Range</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input id="filterPriceMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="Min ฿" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                        <input id="filterPriceMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="Max ฿" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Bedrooms</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input id="filterBedMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="Min" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                            <input id="filterBedMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="Max" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Bathrooms</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input id="filterBathMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="Min" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                            <input id="filterBathMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="Max" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Size Range</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input id="filterSqwMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="ตร.ว. Min" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                        <input id="filterSqwMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="ตร.ว. Max" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                        <input id="filterSqmMin" data-filter="advanced" inputmode="numeric" type="text" placeholder="ตร.ม. Min" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                        <input id="filterSqmMax" data-filter="advanced" inputmode="numeric" type="text" placeholder="ตร.ม. Max" class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none dark:text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">Unit / Floor / Building / Remark</label>
+                    <input id="filterDetails" data-filter="advanced" type="text" placeholder="Unit, floor, building, parking, remark..." class="advanced-filter-input w-full bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-slate-900/10 dark:text-white">
+                </div>
             </div>
         </div>
         
@@ -279,6 +344,12 @@
                         <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">Features</div>
                         <div class="font-medium text-slate-800 dark:text-slate-200 text-xs" id="detailOtherSpecs">-</div>
                     </div>
+
+                    <div id="detailRemarkWrap" class="col-span-2 hidden">
+                        <div class="h-px bg-slate-200/60 dark:bg-slate-700/60 mb-4"></div>
+                        <div class="text-slate-400 dark:text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1"><i class="fa-regular fa-note-sticky mr-1"></i> Remark</div>
+                        <div class="font-medium text-slate-800 dark:text-slate-200 text-sm whitespace-pre-line" id="detailRemark">-</div>
+                    </div>
                 </div>
 
                 <!-- All List: Source Links & Remarks -->
@@ -377,12 +448,14 @@
         let activeStatus = '';
         let activeType = '';
         let showingBookmarks = false;
+        let advancedFiltersOpen = false;
         
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             loadSettings();
             initFiltersUI();
             setupSearch();
+            setupAdvancedFilters();
             if (appSettings.apiUrl) {
                 fetchData();
                 // Prefetch All List in background so modal opens instantly
@@ -532,6 +605,128 @@
             }
         }
 
+        // Advanced Filter Helpers
+        function setupAdvancedFilters() {
+            document.querySelectorAll('[data-filter="advanced"]').forEach(input => {
+                input.addEventListener('input', () => {
+                    updateAdvancedFilterBadge();
+                    applyFilters();
+                });
+            });
+        }
+
+        function toggleAdvancedFilters() {
+            advancedFiltersOpen = !advancedFiltersOpen;
+            const panel = document.getElementById('advancedFilterPanel');
+            if (!panel) return;
+            panel.classList.toggle('hidden', !advancedFiltersOpen);
+        }
+
+        function resetAdvancedFilters() {
+            document.querySelectorAll('[data-filter="advanced"]').forEach(input => input.value = '');
+            updateAdvancedFilterBadge();
+            applyFilters();
+        }
+
+        function getInputValue(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        }
+
+        function parseNumber(value) {
+            if (value === null || value === undefined) return null;
+            const cleaned = value.toString().replace(/[^0-9.\-]/g, '');
+            if (cleaned === '' || cleaned === '-' || cleaned === '.') return null;
+            const n = Number(cleaned);
+            return Number.isFinite(n) ? n : null;
+        }
+
+        function matchText(value, keyword) {
+            if (!keyword) return true;
+            return (value || '').toString().toLowerCase().includes(keyword.toLowerCase());
+        }
+
+        function inRange(value, min, max) {
+            const n = parseNumber(value);
+            const minN = parseNumber(min);
+            const maxN = parseNumber(max);
+            if (minN === null && maxN === null) return true;
+            if (n === null) return false;
+            if (minN !== null && n < minN) return false;
+            if (maxN !== null && n > maxN) return false;
+            return true;
+        }
+
+        function countActiveAdvancedFilters() {
+            const groups = [
+                ['filterZone'],
+                ['filterArea'],
+                ['filterPriceMin', 'filterPriceMax'],
+                ['filterBedMin', 'filterBedMax'],
+                ['filterBathMin', 'filterBathMax'],
+                ['filterSqwMin', 'filterSqwMax'],
+                ['filterSqmMin', 'filterSqmMax'],
+                ['filterDetails']
+            ];
+            return groups.filter(group => group.some(id => getInputValue(id) !== '')).length;
+        }
+
+        function updateAdvancedFilterBadge() {
+            const count = countActiveAdvancedFilters();
+            const badge = document.getElementById('advancedFilterCount');
+            const resetBtn = document.getElementById('resetAdvancedFilterBtn');
+
+            if (badge) {
+                badge.textContent = count;
+                badge.classList.toggle('hidden', count === 0);
+            }
+            if (resetBtn) {
+                resetBtn.classList.toggle('hidden', count === 0);
+            }
+        }
+
+        function matchesAdvancedFilters(prop) {
+            const zone = getInputValue('filterZone');
+            const area = getInputValue('filterArea');
+            const detailKeyword = getInputValue('filterDetails');
+
+            if (zone && !matchText(prop.zone, zone)) return false;
+
+            if (area) {
+                const areaBucket = [
+                    prop.area,
+                    prop.locationGrade,
+                    prop.mapLocation
+                ].join(' ');
+                if (!matchText(areaBucket, area)) return false;
+            }
+
+            if (!inRange(prop.askingPrice, getInputValue('filterPriceMin'), getInputValue('filterPriceMax'))) return false;
+            if (!inRange(prop.bed, getInputValue('filterBedMin'), getInputValue('filterBedMax'))) return false;
+            if (!inRange(prop.bath, getInputValue('filterBathMin'), getInputValue('filterBathMax'))) return false;
+            if (!inRange(prop.sqw, getInputValue('filterSqwMin'), getInputValue('filterSqwMax'))) return false;
+            if (!inRange(prop.sqm, getInputValue('filterSqmMin'), getInputValue('filterSqmMax'))) return false;
+
+            if (detailKeyword) {
+                const detailBucket = [
+                    prop.unitNo,
+                    prop.floor,
+                    prop.building,
+                    prop.parking,
+                    prop.cornerUnit,
+                    prop.rai,
+                    prop.ngan,
+                    prop.sqw,
+                    prop.sqm,
+                    prop.propertyRemark,
+                    prop.remark
+                ].join(' ');
+                if (!matchText(detailBucket, detailKeyword)) return false;
+            }
+
+            return true;
+        }
+
         // The Master Filter Function
         function applyFilters() {
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -552,13 +747,24 @@
                 filtered = filtered.filter(p => (p.status || '').toLowerCase() === activeStatus);
             }
 
-            // 4. Keyword Search
+            // 4. Main Keyword Search: intentionally focused for speed
+            // Searches code, project/village, owner/customer name, phone, LINE, and email.
             if (keyword !== '') {
                 filtered = filtered.filter(prop => {
-                    const str = Object.values(prop).join(' ').toLowerCase();
-                    return str.includes(keyword);
+                    const primarySearchBucket = [
+                        prop.code,
+                        prop.projectName,
+                        prop.ownerName,
+                        prop.ownerTel,
+                        prop.ownerLine,
+                        prop.ownerEmail
+                    ].join(' ').toLowerCase();
+                    return primarySearchBucket.includes(keyword);
                 });
             }
+
+            // 5. Advanced Filters
+            filtered = filtered.filter(matchesAdvancedFilters);
 
             renderList(filtered);
         }
@@ -931,6 +1137,17 @@
             if(prop.floor) locSpecs.push(`Fl: ${prop.floor}`);
             if(prop.building) locSpecs.push(`Bldg: ${prop.building}`);
             document.getElementById('detailLocationSpecs').innerText = locSpecs.length > 0 ? locSpecs.join(' / ') : '-';
+
+            const detailRemark = (prop.propertyRemark || prop.remark || '').toString().trim();
+            const detailRemarkWrap = document.getElementById('detailRemarkWrap');
+            const detailRemarkEl = document.getElementById('detailRemark');
+            if (detailRemark) {
+                detailRemarkEl.innerText = detailRemark;
+                detailRemarkWrap.classList.remove('hidden');
+            } else {
+                detailRemarkEl.innerText = '-';
+                detailRemarkWrap.classList.add('hidden');
+            }
 
             const otherSpecs = [];
             if(prop.parking) otherSpecs.push(`Park: ${prop.parking}`);
