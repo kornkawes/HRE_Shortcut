@@ -1153,10 +1153,16 @@
                             </div>` : ''}
                         </div>
                         ${hasLink ? `
-                        <a href="${e.link}" target="_blank" onclick="event.stopPropagation()" 
-                           class="shrink-0 bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-md" title="Open source link">
-                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                        </a>` : ''}
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="copyValue(${JSON.stringify(e.link)}); event.stopPropagation();" 
+                               class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm" title="Copy link for customer">
+                                <i class="fa-regular fa-copy text-xs"></i>
+                            </button>
+                            <a href="${e.link}" target="_blank" onclick="event.stopPropagation()" 
+                               class="bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-500 text-white w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-md" title="Open source link">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                            </a>
+                        </div>` : ''}
                     </div>
                 </div>`;
             }).join('');
@@ -1440,6 +1446,25 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
             document.body.style.overflow = '';
+        }
+
+        function copyValue(textToCopy) {
+            if (!textToCopy || textToCopy === '-') return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed";
+            textArea.style.opacity = 0;
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                showToast('คัดลอกลิงก์แล้ว');
+            } catch (err) {
+                showToast('Failed to copy', 'error');
+            }
+            textArea.remove();
         }
 
         function copyText(elementId) {
